@@ -1,172 +1,172 @@
 # imgtowebp
 
-一个简单易用的图片转 WebP 格式工具，支持命令行和 Web UI 两种使用方式。
+A simple and easy-to-use image to WebP converter tool that supports both command-line and Web UI interfaces.
 
-## 功能特性
+## Features
 
-- 🖼️ 支持批量转换 JPG/JPEG/PNG 图片为 WebP 格式
-- 📦 支持递归扫描子目录
-- 🎨 可自定义质量参数（0-100）
-- 🌐 提供 Web UI 界面，支持拖拽上传
-- 💾 可选择是否覆盖已存在的 WebP 文件
-- 🗑️ 支持转换后删除原始图片
-- 📊 显示转换统计信息和文件大小优化情况
+- 🖼️ Batch convert JPG/JPEG/PNG images to WebP format
+- 📦 Recursive directory scanning support
+- 🎨 Customizable quality parameter (0-100)
+- 🌐 Web UI interface with drag-and-drop upload
+- 💾 Option to overwrite existing WebP files
+- 🗑️ Option to delete original images after conversion
+- 📊 Display conversion statistics and file size optimization
 
-## 安装
+## Installation
 
-### 方式一：从源码安装
+### Method 1: Install from Source
 
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone <repository-url>
 cd imgtowebp
 
-# 安装依赖
+# Install dependencies
 pip install -r requirements.txt
 
-# 安装包（可选，安装后可使用命令行工具）
+# Install package (optional, enables command-line tools)
 pip install .
 ```
 
-### 方式二：直接使用（无需安装）
+### Method 2: Direct Usage (No Installation Required)
 
-确保已安装依赖：
+Ensure dependencies are installed:
 
 ```bash
 pip install Pillow Flask werkzeug
 ```
 
-## 使用方法
+## Usage
 
-### 命令行模式 (CLI)
+### Command-Line Mode (CLI)
 
-#### 基本用法
+#### Basic Usage
 
 ```bash
-# 转换当前目录下的所有图片
+# Convert all images in current directory
 python main.py
 
-# 转换指定目录
+# Convert images in specified directory
 python main.py --dir ./images
 
-# 设置质量参数（0-100，默认 80）
+# Set quality parameter (0-100, default: 80)
 python main.py --dir ./images --quality 90
 
-# 只扫描当前目录，不递归子目录
+# Scan only current directory, no subdirectories
 python main.py --dir ./images --no-recursive
 
-# 覆盖已存在的 WebP 文件
+# Overwrite existing WebP files
 python main.py --dir ./images --overwrite
 
-# 转换后删除原始图片
+# Delete original images after conversion
 python main.py --dir ./images --replace
 ```
 
-#### 安装后使用命令行工具
+#### Using Command-Line Tools After Installation
 
-如果已通过 `pip install .` 安装，可以直接使用：
+If installed via `pip install .`, you can use directly:
 
 ```bash
 imgtowebp --dir ./images --quality 85
 ```
 
-### Web UI 模式
+### Web UI Mode
 
-#### 启动 Web 服务器
+#### Start Web Server
 
 ```bash
-# 使用默认配置（127.0.0.1:5000）
+# Use default configuration (127.0.0.1:5000)
 python main.py web
 
-# 指定端口
+# Specify port
 python main.py web --port 8080
 
-# 指定输出目录
+# Specify output directory
 python main.py web --output-dir ./webp_output
 
-# 指定主机和端口
+# Specify host and port
 python main.py web --host 0.0.0.0 --port 5000
 ```
 
-#### 直接运行 Web 应用
+#### Run Web Application Directly
 
 ```bash
 python src/imgtowebp/web/app.py --port 5000
 ```
 
-#### 安装后使用 Web 工具
+#### Using Web Tool After Installation
 
 ```bash
 imgtowebp-web --port 5000
 ```
 
-#### Web UI 功能
+#### Web UI Features
 
-- 支持拖拽或点击上传多个图片文件
-- 可设置质量参数（0-100）
-- 可指定输出子目录
-- 可选择是否覆盖已存在的文件
-- 显示转换结果和统计信息
+- Drag-and-drop or click to upload multiple image files
+- Set quality parameter (0-100)
+- Specify output subdirectory
+- Option to overwrite existing files
+- Display conversion results and statistics
 
-访问 `http://localhost:5000` 使用 Web UI。
+Visit `http://localhost:5000` to use the Web UI.
 
-## 命令行参数说明
+## Command-Line Arguments
 
-### CLI 模式参数
+### CLI Mode Arguments
 
-- `--dir DIR`: 目标目录（默认：当前目录）
-- `--quality QUALITY`: WebP 质量 0-100（默认：80）
-- `--no-recursive`: 不递归扫描子目录
-- `--overwrite`: 覆盖已存在的 WebP 文件
-- `--replace`: 转换后删除原始图片文件
+- `--dir DIR`: Target directory (default: current directory)
+- `--quality QUALITY`: WebP quality 0-100 (default: 80)
+- `--no-recursive`: Do not scan subdirectories recursively
+- `--overwrite`: Overwrite existing WebP files
+- `--replace`: Delete original image files after conversion
 
-### Web 模式参数
+### Web Mode Arguments
 
-- `--host HOST`: 服务器主机地址（默认：127.0.0.1）
-- `--port PORT`: 服务器端口（默认：5000）
-- `--output-dir OUTPUT_DIR`: 输出目录（默认：webp_output）
+- `--host HOST`: Server host address (default: 127.0.0.1)
+- `--port PORT`: Server port (default: 5000)
+- `--output-dir OUTPUT_DIR`: Output directory (default: webp_output)
 
-## 项目结构
+## Project Structure
 
 ```
 imgtowebp/
 ├── src/
 │   └── imgtowebp/
 │       ├── __init__.py
-│       ├── core.py          # 核心转换逻辑
-│       ├── cli.py           # 命令行工具
+│       ├── core.py          # Core conversion logic
+│       ├── cli.py           # Command-line tool
 │       └── web/             # Web UI
-│           ├── app.py       # Flask 应用
-│           ├── static/      # 静态资源
-│           └── templates/  # HTML 模板
-├── main.py                  # 统一入口
-├── pyproject.toml           # 项目配置
-├── requirements.txt        # 依赖列表
-└── README.md              # 说明文档
+│           ├── app.py       # Flask application
+│           ├── static/      # Static resources
+│           └── templates/  # HTML templates
+├── main.py                  # Unified entry point
+├── pyproject.toml           # Project configuration
+├── requirements.txt        # Dependencies list
+└── README.md              # Documentation
 ```
 
-## 依赖要求
+## Requirements
 
 - Python >= 3.8
 - Pillow >= 9.0.0
 - Flask >= 2.0.0
 - werkzeug >= 2.0.0
 
-## 示例
+## Examples
 
-### 批量转换并删除原图
+### Batch Convert and Delete Originals
 
 ```bash
 python main.py --dir ./photos --quality 85 --replace
 ```
 
-### 启动 Web 服务器供局域网访问
+### Start Web Server for LAN Access
 
 ```bash
 python main.py web --host 0.0.0.0 --port 8080
 ```
 
-### 转换输出示例
+### Conversion Output Example
 
 ```
 Converted: photo1.jpg -> photo1.webp
@@ -185,10 +185,10 @@ Summary:
   Saved: 1.78 MB (34.05%)
 ```
 
-## 许可证
+## License
 
-[根据项目实际情况填写]
+[Fill in according to your project]
 
-## 贡献
+## Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
