@@ -4,6 +4,8 @@ English| [中文](README_CN.md)
 
 A simple and easy-to-use image to WebP converter tool that supports both command-line and Web UI interfaces.
 
+![Web UI Preview](docs/assets/screenshots/preview-hero.png)
+
 ## Features
 
 - 🖼️ Batch convert JPG/JPEG/PNG images to WebP format
@@ -110,6 +112,8 @@ imgtowebp-web --port 5000
 - Option to overwrite existing files
 - Display conversion results and statistics
 
+![Conversion Results](docs/assets/screenshots/preview-results.png)
+
 Visit `http://localhost:5000` to use the Web UI.
 
 ## Command-Line Arguments
@@ -141,6 +145,9 @@ imgtowebp/
 │           ├── app.py       # Flask application
 │           ├── static/      # Static resources
 │           └── templates/  # HTML templates
+├── docs/
+│   └── assets/
+│       └── screenshots/    # Project screenshots
 ├── main.py                  # Unified entry point
 ├── pyproject.toml           # Project configuration
 ├── requirements.txt        # Dependencies list
@@ -186,10 +193,6 @@ Summary:
   Total size after  (webp):      3.45 MB
   Saved: 1.78 MB (34.05%)
 ```
-
-## License
-
-[Fill in according to your project]
 
 ## Contributing
 

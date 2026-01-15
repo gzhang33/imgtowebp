@@ -1,367 +1,755 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WebP Uploader</title>
+    <title>img2webp - Focus Conversion</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              brand: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-out forwards",
+              "slide-up": "slideUp 0.5s ease-out forwards",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { opacity: "0", transform: "translateY(20px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
     <style>
-      :root {
-        --bg-color: #ffffff;
-        --text-color: #212121;
-        --card-bg: #ffffff;
-        --border-color: rgba(0, 0, 0, 0.1);
-        --accent-color: #2563eb;
-        --accent-hover: #1d4ed8;
-        --muted-text: #666666;
-        --success-color: #16a34a;
-        --warning-color: #d97706;
-        --error-color: #dc2626;
-        --pill-bg: #f3f4f6;
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
       }
-
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg-color: #0f172a;
-          --text-color: #f8fafc;
-          --card-bg: #1e293b;
-          --border-color: rgba(255, 255, 255, 0.1);
-          --accent-color: #3b82f6;
-          --accent-hover: #60a5fa;
-          --muted-text: #94a3b8;
-          --success-color: #4ade80;
-          --warning-color: #fbbf24;
-          --error-color: #f87171;
-          --pill-bg: #334155;
-        }
-      }
-
-      body {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        margin: 0;
-        padding: 40px 20px;
-        line-height: 1.5;
-        transition: background-color 0.3s, color 0.3s;
-      }
-
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-      }
-
-      h2, h3 {
-        margin-top: 0;
-        font-weight: 700;
-        letter-spacing: -0.025em;
-      }
-
-      .card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      .row {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-      }
-
-      .field {
-        flex: 1;
-        min-width: 200px;
-      }
-
-      label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-bottom: 8px;
-        color: var(--text-color);
-      }
-
-      input[type="text"],
-      input[type="number"],
-      input[type="file"] {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        background: var(--bg-color);
-        color: var(--text-color);
-        font-size: 0.95rem;
-        box-sizing: border-box;
-        transition: border-color 0.2s, box-shadow 0.2s;
-      }
-
-      input[type="file"]::file-selector-button {
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid var(--border-color);
-        background: var(--pill-bg);
-        color: var(--text-color);
-        margin-right: 12px;
-        cursor: pointer;
-        font-size: 0.875rem;
-      }
-
-      input:focus {
-        outline: none;
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-      }
-
-      .actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-        padding-top: 16px;
-        border-top: 1px solid var(--border-color);
-      }
-
-      .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.875rem;
-        cursor: pointer;
-      }
-
-      button {
-        padding: 10px 24px;
-        border-radius: 8px;
-        border: none;
-        background: var(--accent-color);
-        color: white;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: background 0.2s, transform 0.1s;
-      }
-
-      button:hover {
-        background: var(--accent-hover);
-      }
-
-      button:active {
-        transform: scale(0.98);
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-      }
-
-      th {
-        font-weight: 600;
-        color: var(--muted-text);
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        padding: 12px 16px;
-        background: var(--pill-bg);
-      }
-
-      td {
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .summary-table th {
+      ::-webkit-scrollbar-track {
         background: transparent;
-        text-align: left;
-        width: 40%;
-        color: var(--text-color);
-        font-size: 0.875rem;
-        text-transform: none;
-        letter-spacing: normal;
       }
-
-      .status {
-        font-weight: 600;
-        font-size: 0.75rem;
-        padding: 4px 8px;
-        border-radius: 6px;
-        text-transform: uppercase;
-      }
-
-      .status.converted { background: rgba(22, 163, 74, 0.1); color: var(--success-color); }
-      .status.skipped { background: rgba(217, 119, 6, 0.1); color: var(--warning-color); }
-      .status.failed { background: rgba(220, 38, 38, 0.1); color: var(--error-color); }
-
-      .muted { color: var(--muted-text); font-size: 0.875rem; }
-      
-      .pill {
-        display: inline-block;
-        padding: 2px 10px;
-        border-radius: 6px;
-        background: var(--pill-bg);
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-right: 4px;
-      }
-
-      code {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        background: var(--pill-bg);
-        padding: 2px 4px;
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
         border-radius: 4px;
-        font-size: 0.85em;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
       }
 
-      .drop-zone {
-        border: 2px dashed var(--border-color);
-        border-radius: 12px;
-        padding: 40px;
-        text-align: center;
-        margin-bottom: 24px;
-        transition: border-color 0.2s, background 0.2s;
-        cursor: pointer;
-      }
-
-      .drop-zone:hover, .drop-zone.dragover {
-        border-color: var(--accent-color);
-        background: rgba(37, 99, 235, 0.05);
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
     </style>
   </head>
-  <body>
-    <div class="container">
-      <div class="card">
-        <h2>WebP Converter</h2>
-        <p class="muted">
-          Fast and simple image to WebP conversion. 
-          <span class="pill">JPG</span> <span class="pill">PNG</span>
-        </p>
-
-        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
-          <div class="drop-zone" id="dropZone">
-            <div style="font-size: 2rem; margin-bottom: 8px;">📁</div>
-            <div style="font-weight: 600;">Click or drag images here</div>
-            <div class="muted" style="font-size: 0.8rem; margin-top: 4px;">Supports multiple files</div>
-            <input id="files" name="files" type="file" multiple required style="display: none;" />
+  <body
+    class="bg-slate-50 text-slate-800 min-h-screen relative overflow-x-hidden selection:bg-brand-100 selection:text-brand-700"
+  >
+    {% if not results %}
+    <form
+      action="/upload"
+      method="post"
+      enctype="multipart/form-data"
+      id="mainForm"
+      class="min-h-screen flex flex-col"
+    >
+      <!-- Navbar -->
+      <header
+        class="fixed top-0 left-0 right-0 z-40 p-6 flex justify-between items-center pointer-events-none"
+      >
+        <div class="pointer-events-auto flex items-center gap-2">
+          <div
+            class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/30"
+          >
+            W
           </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="quality">Quality (0-100)</label>
-              <input id="quality" name="quality" type="number" min="0" max="100" value="80" />
-            </div>
-            <div class="field">
-              <label for="subdir">Output Folder (optional)</label>
-              <input id="subdir" name="subdir" type="text" placeholder="e.g. deck1" />
-            </div>
-          </div>
-
-          <div class="actions">
-            <label class="checkbox-group">
-              <input type="checkbox" name="overwrite" />
-              <span>Overwrite existing files</span>
-            </label>
-            <button type="submit">Convert Now</button>
-          </div>
-        </form>
-
-        <p class="muted" style="margin-top: 20px; font-size: 0.75rem;">
-          Output: <code>{{ output_dir }}</code>
-        </p>
-      </div>
-
-      {% if summary %}
-      <div class="card">
-        <h3>Summary</h3>
-        <table class="summary-table">
-          <tbody>
-            <tr><th>Files received</th><td>{{ summary.files_received }}</td></tr>
-            <tr><th>Converted</th><td><span class="status converted">{{ summary.converted }}</span></td></tr>
-            <tr><th>Skipped</th><td><span class="status skipped">{{ summary.skipped }}</span></td></tr>
-            <tr><th>Failed</th><td><span class="status failed">{{ summary.failed }}</span></td></tr>
-            <tr><th>Size Optimization</th><td>{{ summary.total_input }} → {{ summary.total_output }} ({{ summary.saved_pct }} saved)</td></tr>
-          </tbody>
-        </table>
-      </div>
-      {% endif %}
-
-      {% if results %}
-      <div class="card" style="padding: 0; overflow: hidden;">
-        <h3 style="padding: 24px 24px 0 24px; margin-bottom: 16px;">Results</h3>
-        <div style="overflow-x: auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>File</th>
-                <th>Status</th>
-                <th>Path</th>
-                <th>Size Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for r in results %}
-              <tr>
-                <td style="font-weight: 500;">{{ r.original_name }}</td>
-                <td><span class="status {{ r.status }}">{{ r.status }}</span></td>
-                <td>{% if r.output_relpath %}<code>{{ r.output_relpath }}</code>{% else %}<span class="muted">N/A</span>{% endif %}</td>
-                <td class="muted">
-                  {% if r.input_bytes and r.output_bytes %}
-                    {{ r.input_bytes }} → {{ r.output_bytes }}
-                  {% else %}
-                    -
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <span
+            class="font-bold text-slate-800 tracking-tight text-lg hidden sm:block"
+            >ImgToWebp</span
+          >
         </div>
-      </div>
-      {% endif %}
+
+        <div class="pointer-events-auto relative">
+          <button
+            type="button"
+            id="settingsToggle"
+            class="w-10 h-10 bg-white rounded-full shadow-sm border border-slate-200 flex items-center justify-center text-slate-500 hover:text-brand-600 hover:border-brand-200 transition-all hover:rotate-90 duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          >
+            <!-- Gear Icon -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+              />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+
+          <!-- Settings Popover -->
+          <div
+            id="settingsPanel"
+            class="hidden absolute right-0 top-14 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 p-6 transform origin-top-right transition-all duration-200 scale-95 opacity-0 z-50"
+          >
+            <h3
+              class="font-semibold text-slate-800 mb-4 flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-brand-500"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                />
+              </svg>
+              Global Settings
+            </h3>
+
+            <div class="space-y-5">
+              <!-- Quality -->
+              <div>
+                <div class="flex justify-between mb-2">
+                  <label
+                    for="quality"
+                    class="text-xs font-medium text-slate-500 uppercase tracking-wider"
+                    >Quality</label
+                  >
+                  <span
+                    class="text-xs font-mono font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded"
+                    id="qualityValue"
+                    >80%</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  id="quality"
+                  name="quality"
+                  min="0"
+                  max="100"
+                  value="80"
+                  class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                />
+              </div>
+
+              <!-- Output Dir -->
+              <div>
+                <label
+                  for="subdir"
+                  class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2"
+                  >Output Subfolder</label
+                >
+                <div class="relative">
+                  <span
+                    class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                      />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    id="subdir"
+                    name="subdir"
+                    placeholder="e.g. deck1"
+                    class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <!-- Overwrite -->
+              <div class="flex items-center gap-3 pt-2">
+                <input
+                  type="checkbox"
+                  id="overwrite"
+                  name="overwrite"
+                  class="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer"
+                />
+                <label
+                  for="overwrite"
+                  class="text-sm text-slate-600 cursor-pointer select-none"
+                  >Overwrite existing files</label
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main
+        class="flex-1 flex flex-col items-center justify-center p-6 w-full max-w-7xl mx-auto relative z-10"
+      >
+        <div
+          class="w-full max-w-4xl transition-all duration-500"
+          id="dropContainer"
+        >
+          <!-- Drop Zone -->
+          <div
+            id="dropZone"
+            class="group relative w-full aspect-[2/1] md:aspect-[3/1] bg-white border-4 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-brand-400 hover:bg-brand-50/10 hover:shadow-xl hover:shadow-brand-500/5 hover:-translate-y-1 overflow-hidden"
+          >
+            <input
+              type="file"
+              id="files"
+              name="files"
+              multiple
+              class="hidden"
+              required
+              accept="image/*"
+            />
+
+            <!-- Empty State Content -->
+            <div
+              id="emptyState"
+              class="flex flex-col items-center p-8 text-center transition-opacity duration-300"
+            >
+              <div
+                class="w-20 h-20 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" x2="12" y1="3" y2="15" />
+                </svg>
+              </div>
+              <h2 class="text-3xl font-bold text-slate-800 mb-2">
+                Drop images here
+              </h2>
+              <p class="text-slate-500 text-lg">or click to browse</p>
+              <div class="mt-8 flex gap-3">
+                <span
+                  class="px-3 py-1 bg-slate-100 rounded-full text-slate-500 text-xs font-semibold uppercase tracking-wide"
+                  >JPG</span
+                >
+                <span
+                  class="px-3 py-1 bg-slate-100 rounded-full text-slate-500 text-xs font-semibold uppercase tracking-wide"
+                  >PNG</span
+                >
+              </div>
+            </div>
+
+            <!-- Selected Files Grid (Injected by JS) -->
+            <div
+              id="previewGrid"
+              class="hidden absolute inset-0 bg-slate-50/50 backdrop-blur-sm p-6 overflow-y-auto w-full h-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 content-start"
+            >
+              <!-- Cards go here -->
+            </div>
+
+            <!-- Add More Overlay (Visible on Hover when files selected) -->
+            <div
+              id="addMoreOverlay"
+              class="hidden absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+            >
+              <span
+                class="bg-white/90 backdrop-blur px-6 py-2 rounded-full font-semibold shadow-lg text-slate-700"
+                >Click to change selection</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Action Bar -->
+        <div
+          id="actionBar"
+          class="fixed bottom-10 left-1/2 -translate-x-1/2 z-30 transition-all duration-300 translate-y-24 opacity-0 scale-95"
+        >
+          <button
+            type="submit"
+            id="convertBtn"
+            class="group flex items-center gap-3 bg-slate-900 hover:bg-brand-600 text-white pl-8 pr-6 py-4 rounded-full font-semibold text-lg shadow-2xl shadow-slate-900/20 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span
+              >Convert
+              <span id="fileCountBadge" class="font-bold">0</span> Files</span
+            >
+            <span
+              class="bg-white/20 rounded-full p-2 group-hover:bg-white/30 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" x2="12" y1="5" y2="19" />
+                <polyline points="19 12 12 19 5 12" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </main>
+    </form>
+    {% endif %} {% if results %}
+    <div class="min-h-screen bg-slate-50 flex flex-col p-6 animate-fade-in">
+      <main class="flex-1 w-full max-w-5xl mx-auto flex flex-col gap-8">
+        <!-- Results Header -->
+        <div class="text-center py-10">
+          <div
+            class="inline-flex items-center justify-center w-20 h-20 bg-green-100 text-green-600 rounded-full mb-6 shadow-lg shadow-green-500/20"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <h1 class="text-4xl font-bold text-slate-800 mb-3">
+            Conversion Complete
+          </h1>
+          <p class="text-slate-500 text-lg">
+            Successfully optimized your images.
+          </p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center animate-slide-up"
+            style="animation-delay: 0.1s"
+          >
+            <span
+              class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1"
+              >Total Saved</span
+            >
+            <span class="text-3xl font-bold text-brand-600"
+              >{{ summary.saved }}</span
+            >
+            <span
+              class="text-xs text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full mt-2 font-medium"
+              >-{{ summary.saved_pct }}</span
+            >
+          </div>
+          <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center animate-slide-up"
+            style="animation-delay: 0.2s"
+          >
+            <span
+              class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1"
+              >Processed</span
+            >
+            <span class="text-3xl font-bold text-slate-700"
+              >{{ summary.converted }}</span
+            >
+            <span class="text-xs text-slate-400 mt-2"
+              >of {{ summary.files_received }} files</span
+            >
+          </div>
+          <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center animate-slide-up"
+            style="animation-delay: 0.3s"
+          >
+            <span
+              class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1"
+              >Input Size</span
+            >
+            <span class="text-xl font-bold text-slate-600"
+              >{{ summary.total_input }}</span
+            >
+          </div>
+          <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center animate-slide-up"
+            style="animation-delay: 0.4s"
+          >
+            <span
+              class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1"
+              >Output Size</span
+            >
+            <span class="text-xl font-bold text-slate-800"
+              >{{ summary.total_output }}</span
+            >
+          </div>
+        </div>
+
+        <!-- Detailed List -->
+        <div
+          class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden animate-slide-up"
+          style="animation-delay: 0.5s"
+        >
+          <div
+            class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"
+          >
+            <h3 class="font-semibold text-slate-700">File Details</h3>
+            <div class="text-sm text-slate-500 flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                />
+              </svg>
+              Saved to:
+              <code class="bg-slate-200 px-2 py-0.5 rounded text-xs font-mono"
+                >{{ output_dir }}</code
+              >
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead
+                class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider"
+              >
+                <tr>
+                  <th class="px-6 py-4">File Name</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Optimization</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                {% for r in results %}
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td
+                    class="px-6 py-4 font-medium text-slate-700 flex items-center gap-3"
+                  >
+                    <div
+                      class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+                        />
+                        <polyline points="14 2 14 8 20 8" />
+                      </svg>
+                    </div>
+                    {{ r.original_name }}
+                  </td>
+                  <td class="px-6 py-4">
+                    {% if r.status == "converted" %}
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                      >SUCCESS</span
+                    >
+                    {% elif r.status == "skipped" %}
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                      >SKIPPED</span
+                    >
+                    {% else %}
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                      >FAILED</span
+                    >
+                    {% endif %}
+                  </td>
+                  <td class="px-6 py-4 text-right font-mono text-slate-500">
+                    {% if r.input_bytes and r.output_bytes %}
+                    <span class="line-through text-slate-400 text-xs mr-2"
+                      >{{ r.input_bytes|filesizeformat }}</span
+                    >
+                    <span class="font-bold text-slate-700"
+                      >{{ r.output_bytes|filesizeformat }}</span
+                    >
+                    {% else %} - {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="flex justify-center pb-12">
+          <a
+            href="/"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold py-3 px-8 rounded-full shadow-sm transition-all hover:shadow-md active:scale-95 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Convert More Files
+          </a>
+        </div>
+      </main>
     </div>
+    {% endif %}
 
     <script>
-      const dropZone = document.getElementById('dropZone');
-      const fileInput = document.getElementById('files');
+      // --- Shared Logic ---
 
-      dropZone.addEventListener('click', () => fileInput.click());
+      // Settings Toggle
+      const settingsToggle = document.getElementById("settingsToggle");
+      const settingsPanel = document.getElementById("settingsPanel");
+      const qualityInput = document.getElementById("quality");
+      const qualityValue = document.getElementById("qualityValue");
 
-      dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-      });
-
-      ['dragleave', 'dragend'].forEach(type => {
-        dropZone.addEventListener(type, () => {
-          dropZone.classList.remove('dragover');
+      if (settingsToggle && settingsPanel) {
+        settingsToggle.addEventListener("click", () => {
+          const isHidden = settingsPanel.classList.contains("hidden");
+          if (isHidden) {
+            settingsPanel.classList.remove("hidden");
+            // Small timeout to allow removing hidden before adding opacity transition
+            requestAnimationFrame(() => {
+              settingsPanel.classList.remove("scale-95", "opacity-0");
+              settingsPanel.classList.add("scale-100", "opacity-100");
+            });
+          } else {
+            settingsPanel.classList.remove("scale-100", "opacity-100");
+            settingsPanel.classList.add("scale-95", "opacity-0");
+            setTimeout(() => settingsPanel.classList.add("hidden"), 200);
+          }
         });
-      });
 
-      dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length) {
-          fileInput.files = e.dataTransfer.files;
-          updateFileName();
-        }
-      });
+        // Close when clicking outside
+        document.addEventListener("click", (e) => {
+          if (
+            !settingsToggle.contains(e.target) &&
+            !settingsPanel.contains(e.target)
+          ) {
+            if (!settingsPanel.classList.contains("hidden")) {
+              settingsPanel.classList.remove("scale-100", "opacity-100");
+              settingsPanel.classList.add("scale-95", "opacity-0");
+              setTimeout(() => settingsPanel.classList.add("hidden"), 200);
+            }
+          }
+        });
+      }
 
-      fileInput.addEventListener('change', updateFileName);
+      if (qualityInput) {
+        qualityInput.addEventListener("input", (e) => {
+          qualityValue.textContent = e.target.value + "%";
+        });
+      }
 
-      function updateFileName() {
-        const count = fileInput.files.length;
-        if (count > 0) {
-          dropZone.querySelector('div:nth-child(2)').textContent = `${count} files selected`;
+      // --- Dropzone Logic (Only if on dropzone page) ---
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("files");
+      const emptyState = document.getElementById("emptyState");
+      const previewGrid = document.getElementById("previewGrid");
+      const actionBar = document.getElementById("actionBar");
+      const fileCountBadge = document.getElementById("fileCountBadge");
+
+      if (dropZone && fileInput) {
+        // Click to upload
+        dropZone.addEventListener("click", (e) => {
+          // Determine if we should trigger file input
+          // If the previewGrid is visible, we only trigger if user is NOT clicking on the grid itself
+          // (Though grid covers everything, so maybe just always trigger? Or use the 'Change Selection' overlay)
+          // Layout: Grid covers Empty State. Overlay covers Grid on Hover.
+          // Let's just trigger file input.
+          fileInput.click();
+        });
+
+        // Drag Enter / Over
+        ["dragenter", "dragover"].forEach((eventName) => {
+          dropZone.addEventListener(
+            eventName,
+            (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              dropZone.classList.add("border-brand-500", "bg-brand-50/20");
+            },
+            false
+          );
+        });
+
+        // Drag Leave / End
+        ["dragleave", "dragend"].forEach((eventName) => {
+          dropZone.addEventListener(
+            eventName,
+            (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              dropZone.classList.remove("border-brand-500", "bg-brand-50/20");
+            },
+            false
+          );
+        });
+
+        // Drop
+        dropZone.addEventListener(
+          "drop",
+          (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove("border-brand-500", "bg-brand-50/20");
+
+            const files = e.dataTransfer.files;
+            if (files.length) {
+              fileInput.files = files; // Update input
+              handleFiles(files);
+            }
+          },
+          false
+        );
+
+        // File Input Change
+        fileInput.addEventListener("change", (e) => {
+          handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+          if (!files || files.length === 0) return;
+
+          // 1. Toggle UI State
+          emptyState.classList.add("hidden");
+
+          // Show Grid
+          previewGrid.classList.remove("hidden");
+          previewGrid.classList.add("grid");
+          previewGrid.innerHTML = ""; // Clear previous
+
+          // 2. Generate Previews
+          Array.from(files).forEach((file) => {
+            const reader = new FileReader();
+
+            const card = document.createElement("div");
+            card.className =
+              "bg-white p-2 rounded-xl shadow-sm border border-slate-100 flex flex-col gap-2 aspect-square animate-fade-in";
+
+            // Create Image placeholder
+            const imgContainer = document.createElement("div");
+            imgContainer.className =
+              "flex-1 w-full bg-slate-100 rounded-lg overflow-hidden relative";
+
+            const img = document.createElement("img");
+            img.className = "w-full h-full object-cover";
+
+            if (file.type.startsWith("image/")) {
+              reader.onload = (e) => {
+                img.src = e.target.result;
+              };
+              reader.readAsDataURL(file);
+            } else {
+              // Generic icon for non-images (though we filter accept="image/*")
+              imgContainer.innerHTML =
+                '<div class="w-full h-full flex items-center justify-center text-slate-400"><svg width="24" height="24" ...>...</svg></div>';
+            }
+
+            imgContainer.appendChild(img);
+
+            // File Info
+            const info = document.createElement("div");
+            info.className = "px-1";
+            info.innerHTML = `
+                        <div class="text-xs font-semibold text-slate-700 truncate w-full" title="${
+                          file.name
+                        }">${file.name}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">${(
+                          file.size / 1024
+                        ).toFixed(0)} KB</div>
+                    `;
+
+            card.appendChild(imgContainer);
+            card.appendChild(info);
+            previewGrid.appendChild(card);
+          });
+
+          // 3. Show Action Bar
+          fileCountBadge.textContent = files.length;
+          actionBar.classList.remove("translate-y-24", "opacity-0", "scale-95");
         }
       }
     </script>
   </body>
 </html>
-
-

@@ -184,7 +184,8 @@ def run_web() -> None:
     
     args = parser.parse_args()
     app = create_app(Path(args.output_dir).resolve())
-    app.run(host=args.host, port=args.port, debug=False)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(host=args.host, port=args.port, debug=True)
 
 if __name__ == "__main__":
     run_web()
