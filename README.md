@@ -1,5 +1,7 @@
 # imgtowebp
 
+[English](README.md) | [中文](README_CN.md)
+
 A simple and easy-to-use image to WebP converter tool that supports both command-line and Web UI interfaces.
 
 ## Features

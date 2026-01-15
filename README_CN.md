@@ -1,5 +1,7 @@
 # imgtowebp
 
+[English](README.md) | [中文](README_CN.md)
+
 一个简单易用的图片转 WebP 格式工具，支持命令行和 Web UI 两种使用方式。
 
 ## 功能特性
