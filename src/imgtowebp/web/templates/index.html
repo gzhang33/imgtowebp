@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebP Uploader</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #212121;
+        --card-bg: #ffffff;
+        --border-color: rgba(0, 0, 0, 0.1);
+        --accent-color: #2563eb;
+        --accent-hover: #1d4ed8;
+        --muted-text: #666666;
+        --success-color: #16a34a;
+        --warning-color: #d97706;
+        --error-color: #dc2626;
+        --pill-bg: #f3f4f6;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #0f172a;
+          --text-color: #f8fafc;
+          --card-bg: #1e293b;
+          --border-color: rgba(255, 255, 255, 0.1);
+          --accent-color: #3b82f6;
+          --accent-hover: #60a5fa;
+          --muted-text: #94a3b8;
+          --success-color: #4ade80;
+          --warning-color: #fbbf24;
+          --error-color: #f87171;
+          --pill-bg: #334155;
+        }
+      }
+
+      body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 40px 20px;
+        line-height: 1.5;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      h2, h3 {
+        margin-top: 0;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .field {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-color);
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="file"] {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      input[type="file"]::file-selector-button {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: var(--pill-bg);
+        color: var(--text-color);
+        margin-right: 12px;
+        cursor: pointer;
+        font-size: 0.875rem;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.875rem;
+        cursor: pointer;
+      }
+
+      button {
+        padding: 10px 24px;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent-color);
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: background 0.2s, transform 0.1s;
+      }
+
+      button:hover {
+        background: var(--accent-hover);
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      th {
+        font-weight: 600;
+        color: var(--muted-text);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 12px 16px;
+        background: var(--pill-bg);
+      }
+
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .summary-table th {
+        background: transparent;
+        text-align: left;
+        width: 40%;
+        color: var(--text-color);
+        font-size: 0.875rem;
+        text-transform: none;
+        letter-spacing: normal;
+      }
+
+      .status {
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+      }
+
+      .status.converted { background: rgba(22, 163, 74, 0.1); color: var(--success-color); }
+      .status.skipped { background: rgba(217, 119, 6, 0.1); color: var(--warning-color); }
+      .status.failed { background: rgba(220, 38, 38, 0.1); color: var(--error-color); }
+
+      .muted { color: var(--muted-text); font-size: 0.875rem; }
+      
+      .pill {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 6px;
+        background: var(--pill-bg);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 4px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: var(--pill-bg);
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 0.85em;
+      }
+
+      .drop-zone {
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 24px;
+        transition: border-color 0.2s, background 0.2s;
+        cursor: pointer;
+      }
+
+      .drop-zone:hover, .drop-zone.dragover {
+        border-color: var(--accent-color);
+        background: rgba(37, 99, 235, 0.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>WebP Converter</h2>
+        <p class="muted">
+          Fast and simple image to WebP conversion. 
+          <span class="pill">JPG</span> <span class="pill">PNG</span>
+        </p>
+
+        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+          <div class="drop-zone" id="dropZone">
+            <div style="font-size: 2rem; margin-bottom: 8px;">📁</div>
+            <div style="font-weight: 600;">Click or drag images here</div>
+            <div class="muted" style="font-size: 0.8rem; margin-top: 4px;">Supports multiple files</div>
+            <input id="files" name="files" type="file" multiple required style="display: none;" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="quality">Quality (0-100)</label>
+              <input id="quality" name="quality" type="number" min="0" max="100" value="80" />
+            </div>
+            <div class="field">
+              <label for="subdir">Output Folder (optional)</label>
+              <input id="subdir" name="subdir" type="text" placeholder="e.g. deck1" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <label class="checkbox-group">
+              <input type="checkbox" name="overwrite" />
+              <span>Overwrite existing files</span>
+            </label>
+            <button type="submit">Convert Now</button>
+          </div>
+        </form>
+
+        <p class="muted" style="margin-top: 20px; font-size: 0.75rem;">
+          Output: <code>{{ output_dir }}</code>
+        </p>
+      </div>
+
+      {% if summary %}
+      <div class="card">
+        <h3>Summary</h3>
+        <table class="summary-table">
+          <tbody>
+            <tr><th>Files received</th><td>{{ summary.files_received }}</td></tr>
+            <tr><th>Converted</th><td><span class="status converted">{{ summary.converted }}</span></td></tr>
+            <tr><th>Skipped</th><td><span class="status skipped">{{ summary.skipped }}</span></td></tr>
+            <tr><th>Failed</th><td><span class="status failed">{{ summary.failed }}</span></td></tr>
+            <tr><th>Size Optimization</th><td>{{ summary.total_input }} → {{ summary.total_output }} ({{ summary.saved_pct }} saved)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {% if results %}
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <h3 style="padding: 24px 24px 0 24px; margin-bottom: 16px;">Results</h3>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Status</th>
+                <th>Path</th>
+                <th>Size Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in results %}
+              <tr>
+                <td style="font-weight: 500;">{{ r.original_name }}</td>
+                <td><span class="status {{ r.status }}">{{ r.status }}</span></td>
+                <td>{% if r.output_relpath %}<code>{{ r.output_relpath }}</code>{% else %}<span class="muted">N/A</span>{% endif %}</td>
+                <td class="muted">
+                  {% if r.input_bytes and r.output_bytes %}
+                    {{ r.input_bytes }} → {{ r.output_bytes }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('files');
+
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+
+      ['dragleave', 'dragend'].forEach(type => {
+        dropZone.addEventListener(type, () => {
+          dropZone.classList.remove('dragover');
+        });
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          updateFileName();
+        }
+      });
+
+      fileInput.addEventListener('change', updateFileName);
+
+      function updateFileName() {
+        const count = fileInput.files.length;
+        if (count > 0) {
+          dropZone.querySelector('div:nth-child(2)').textContent = `${count} files selected`;
+        }
+      }
+    </script>
+  </body>
+</html>
+
+

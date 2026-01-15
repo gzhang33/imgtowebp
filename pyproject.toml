@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imgtowebp"
+version = "0.1.0"
+description = "A simple tool to convert images to WebP via CLI or Web UI"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "Pillow>=9.0.0",
+    "Flask>=2.0.0",
+    "werkzeug>=2.0.0",
+]
+
+[project.scripts]
+imgtowebp = "imgtowebp.cli:run_cli"
+imgtowebp-web = "imgtowebp.web.app:run_web"
+
+[tool.setuptools.packages.find]
+where = ["src"]
