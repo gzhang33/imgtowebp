@@ -17,3 +17,7 @@ env/
 .DS_Store
 .vscode/
 .idea/
+
+# Ignore webp output files but keep folder structure
+webp_uploader/webp_output/*
+!webp_uploader/webp_output/.gitkeep
